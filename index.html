@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1d8a78"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<title>Plate & Pace – meals and workouts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1ec;--surface:#fbfcfa;--ink:#17231f;--muted:#66756e;--line:#d8dfd8;--eat:#d4562f;--burn:#1d8a78;--over:#b3261e;--track:#dde4dd;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101815;--surface:#18231f;--ink:#e8efea;--muted:#92a39b;--line:#2a3933;--eat:#f08a63;--burn:#4cc3ae;--over:#ff8a80;--track:#2a3933}}
+:root[data-theme="dark"]{--bg:#101815;--surface:#18231f;--ink:#e8efea;--muted:#92a39b;--line:#2a3933;--eat:#f08a63;--burn:#4cc3ae;--over:#ff8a80;--track:#2a3933}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.4}
+main{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.25rem;font-weight:800;margin:0}
+h2{font-size:1.05rem;font-weight:600;margin:0 0 12px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--burn);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.datebar{display:flex;gap:6px;align-items:center}
+.datebar button,.datebar input{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;margin-bottom:16px}
+.ring{position:relative;width:170px;height:170px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring b{font-size:2.5rem;font-weight:800;line-height:1}
+.ring span{font-size:.8rem;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{border-left:4px solid var(--line);padding-left:10px}
+.stat.e{border-color:var(--eat)}.stat.b{border-color:var(--burn)}
+.stat b{display:block;font-size:1.5rem;font-weight:800}
+.stat span{font-size:.8rem;color:var(--muted)}
+.goal{margin-top:14px;font-size:.85rem;color:var(--muted)}
+.goal input{width:84px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+form{display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:10px}
+form .full{grid-column:1/-1}
+form input,form select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%;min-width:0}
+.add{grid-column:1/-1;border:0;border-radius:10px;padding:10px;font-weight:600;color:#fff}
+.meal .add{background:var(--eat)}.ex .add{background:var(--burn)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chips button{background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px 11px;font-size:.82rem}
+.chips button:hover{border-color:var(--muted)}
+.grp{margin-top:12px}
+.grp h3{font-size:.85rem;font-weight:600;color:var(--muted);margin:0 0 4px;display:flex;justify-content:space-between}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+li .n{flex:1;min-width:0;overflow-wrap:anywhere}
+li small{color:var(--muted);display:block}
+li .k{font-weight:600;white-space:nowrap}
+li button{background:none;border:0;color:var(--muted);font-size:1.1rem;padding:2px 6px;border-radius:6px}
+li button:hover{color:var(--over)}
+.empty{color:var(--muted);font-size:.9rem;padding:8px 0}
+.week{margin-top:16px}
+.wk{overflow-x:auto}
+.wk svg{display:block;min-width:420px;width:100%;height:auto}
+.legend{font-size:.8rem;color:var(--muted);margin-top:6px}
+@media (max-width:720px){.cols{grid-template-columns:1fr}.hero{grid-template-columns:1fr;justify-items:center}.hero>div:last-child{width:100%}}
+@media (prefers-reduced-motion:no-preference){.ring circle.p{transition:stroke-dashoffset .5s ease}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1>Plate &amp; Pace</h1>
+    <div class="datebar">
+      <button id="prev" aria-label="Previous day">‹</button>
+      <input type="date" id="date" aria-label="Date">
+      <button id="next" aria-label="Next day">›</button>
+      <button id="today">Today</button>
+    </div>
+  </div>
+
+  <section class="panel hero" aria-live="polite">
+    <div class="ring">
+      <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--track)" stroke-width="12"/><circle class="p" id="arc" cx="60" cy="60" r="52" fill="none" stroke="var(--eat)" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+      <div class="c"><b id="rem">0</b><span id="remLabel">kcal left</span></div>
+    </div>
+    <div>
+      <div class="stats">
+        <div class="stat e"><b id="eaten">0</b><span>Eaten</span></div>
+        <div class="stat b"><b id="burned">0</b><span>Burned</span></div>
+        <div class="stat"><b id="net">0</b><span>Net</span></div>
+      </div>
+      <div class="goal"><label>Daily goal <input type="number" id="goal" min="500" max="10000" step="50"> kcal</label>
+        <div id="macros" style="margin-top:6px"></div></div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="panel meal">
+      <h2>Meals</h2>
+      <form id="mform">
+        <select id="mtype" class="full" aria-label="Meal type"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select>
+        <input id="mname" placeholder="What did you eat?" required maxlength="60">
+        <input id="mkcal" type="number" min="0" max="5000" placeholder="kcal" required>
+        <input id="mp" type="number" min="0" placeholder="Protein g">
+        <input id="mc" type="number" min="0" placeholder="Carbs g">
+        <input id="mf" type="number" min="0" placeholder="Fat g" class="full">
+        <button class="add">Add meal</button>
+      </form>
+      <div class="chips" id="mchips"></div>
+      <div id="mlist"></div>
+    </section>
+
+    <section class="panel ex">
+      <h2>Exercise</h2>
+      <form id="eform">
+        <input id="ename" placeholder="Activity" required maxlength="60">
+        <input id="emin" type="number" min="1" max="1440" placeholder="Minutes" required>
+        <input id="ekcal" type="number" min="0" max="5000" placeholder="kcal burned (auto if empty)" class="full">
+        <button class="add">Add exercise</button>
+      </form>
+      <div class="chips" id="echips"></div>
+      <div id="elist"></div>
+    </section>
+  </div>
+
+  <section class="panel week">
+    <h2>Last 7 days</h2>
+    <div class="wk" id="wk"></div>
+    <div class="legend">Bars show net calories (eaten minus burned). The dashed line is your goal. Burn estimates assume about 70 kg.</div>
+  </section>
+</main>
+
+<script>
+(function(){
+var KEY="plate-pace-v1", TYPES=["Breakfast","Lunch","Dinner","Snack"];
+var MEALS=[["Oatmeal",300],["Banana",105],["Chicken salad",420],["Rice bowl",550],["Pasta",620],["Coffee latte",150]];
+var EX=[["Walking",4],["Running",11],["Cycling",8],["Swimming",9],["Strength",6],["Yoga",3]];
+var S={goal:2000,days:{}};
+try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.days){S=p}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(id){return document.getElementById(id)}
+function pad(n){return n<10?"0"+n:""+n}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parse(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2])}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function day(k){if(!S.days[k])S.days[k]={meals:[],ex:[]};return S.days[k]}
+function sums(k){var d=S.days[k]||{meals:[],ex:[]},e=0,b=0,p=0,c=0,f=0;
+  d.meals.forEach(function(m){e+=m.kcal;p+=m.p||0;c+=m.c||0;f+=m.f||0});
+  d.ex.forEach(function(x){b+=x.kcal});return{e:e,b:b,p:p,c:c,f:f}}
+var cur=iso(new Date()), rate=null;
+
+function render(){
+  $("date").value=cur;
+  $("goal").value=S.goal;
+  var s=sums(cur), net=s.e-s.b, rem=S.goal-net;
+  $("eaten").textContent=s.e;$("burned").textContent=s.b;$("net").textContent=net;
+  $("rem").textContent=Math.abs(rem);
+  $("remLabel").textContent=rem>=0?"kcal left":"kcal over";
+  $("rem").style.color=rem<0?"var(--over)":"";
+  var pr=Math.max(0,Math.min(1,net/S.goal));
+  var arc=$("arc");arc.style.strokeDashoffset=326.7*(1-pr);
+  arc.style.stroke=rem<0?"var(--over)":"var(--eat)";
+  $("macros").textContent=(s.p||s.c||s.f)?"Protein "+s.p+" g · Carbs "+s.c+" g · Fat "+s.f+" g":"";
+  var d=S.days[cur]||{meals:[],ex:[]};
+  var h="";
+  TYPES.forEach(function(t){
+    var items=d.meals.filter(function(m){return m.type===t});
+    if(!items.length)return;
+    var tot=items.reduce(function(a,m){return a+m.kcal},0);
+    h+='<div class="grp"><h3><span>'+t+'</span><span>'+tot+' kcal</span></h3><ul>';
+    items.forEach(function(m){
+      var mac=(m.p||m.c||m.f)?"<small>P "+(m.p||0)+" · C "+(m.c||0)+" · F "+(m.f||0)+" g</small>":"";
+      h+='<li><span class="n">'+esc(m.name)+mac+'</span><span class="k">'+m.kcal+'</span><button data-del="m" data-id="'+m.id+'" aria-label="Delete '+esc(m.name)+'">×</button></li>'});
+    h+='</ul></div>'});
+  $("mlist").innerHTML=h||'<div class="empty">No meals logged yet. Add your first one above.</div>';
+  h="";
+  if(d.ex.length){h='<ul>';d.ex.forEach(function(x){
+    h+='<li><span class="n">'+esc(x.name)+'<small>'+x.min+' min</small></span><span class="k">−'+x.kcal+'</span><button data-del="x" data-id="'+x.id+'" aria-label="Delete '+esc(x.name)+'">×</button></li>'});h+='</ul>'}
+  $("elist").innerHTML=h||'<div class="empty">No workouts logged yet. Pick an activity above.</div>';
+  week();
+}
+
+function week(){
+  var base=parse(cur),vals=[],i,max=S.goal;
+  for(i=6;i>=0;i--){var d=new Date(base);d.setDate(d.getDate()-i);var s=sums(iso(d));
+    vals.push({l:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()],n:s.e-s.b,k:iso(d)});max=Math.max(max,s.e-s.b)}
+  max=max*1.15;var W=560,H=170,bw=44,gap=(W-7*bw)/8,top=14,bot=H-26,svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Net calories over the last 7 days">';
+  var gy=bot-(S.goal/max)*(bot-top);
+  vals.forEach(function(v,j){
+    var x=gap+j*(bw+gap),hgt=Math.max(0,v.n/max*(bot-top)),col=v.n>S.goal?"var(--over)":"var(--eat)";
+    svg+='<rect x="'+x+'" y="'+(bot-hgt)+'" width="'+bw+'" height="'+hgt+'" rx="6" fill="'+col+'" opacity="'+(v.k===cur?1:.55)+'"/>';
+    svg+='<text x="'+(x+bw/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+v.l+'</text>';
+    if(v.n>0)svg+='<text x="'+(x+bw/2)+'" y="'+(bot-hgt-4)+'" text-anchor="middle" font-size="11" fill="var(--ink)">'+v.n+'</text>'});
+  svg+='<line x1="0" x2="'+W+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--burn)" stroke-dasharray="5 4" stroke-width="1.5"/></svg>';
+  $("wk").innerHTML=svg;
+}
+
+function chips(){
+  $("mchips").innerHTML=MEALS.map(function(m,i){return'<button type="button" data-m="'+i+'">'+m[0]+' · '+m[1]+'</button>'}).join("");
+  $("echips").innerHTML=EX.map(function(x,i){return'<button type="button" data-x="'+i+'">'+x[0]+'</button>'}).join("");
+}
+function id(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function num(v){var n=parseInt(v,10);return isNaN(n)||n<0?0:n}
+
+$("mchips").addEventListener("click",function(e){var b=e.target.closest("[data-m]");if(!b)return;var m=MEALS[b.dataset.m];$("mname").value=m[0];$("mkcal").value=m[1];$("mkcal").focus()});
+$("echips").addEventListener("click",function(e){var b=e.target.closest("[data-x]");if(!b)return;var x=EX[b.dataset.x];$("ename").value=x[0];rate=x[1];$("emin").focus()});
+$("ename").addEventListener("input",function(){rate=null;var v=this.value.trim().toLowerCase();EX.forEach(function(x){if(x[0].toLowerCase()===v)rate=x[1]})});
+
+$("mform").addEventListener("submit",function(e){e.preventDefault();
+  var n=$("mname").value.trim(),k=num($("mkcal").value);if(!n)return;
+  day(cur).meals.push({id:id(),type:$("mtype").value,name:n,kcal:k,p:num($("mp").value),c:num($("mc").value),f:num($("mf").value)});
+  save();this.reset();render();$("mname").focus()});
+$("eform").addEventListener("submit",function(e){e.preventDefault();
+  var n=$("ename").value.trim(),m=num($("emin").value),k=$("ekcal").value===""?Math.round(m*(rate||6)):num($("ekcal").value);if(!n||!m)return;
+  day(cur).ex.push({id:id(),name:n,min:m,kcal:k});
+  save();this.reset();rate=null;render();$("ename").focus()});
+
+document.addEventListener("click",function(e){var b=e.target.closest("[data-del]");if(!b)return;
+  var d=day(cur),key=b.dataset.del==="m"?"meals":"ex";
+  d[key]=d[key].filter(function(i){return i.id!==b.dataset.id});save();render()});
+
+function shift(n){var d=parse(cur);d.setDate(d.getDate()+n);cur=iso(d);render()}
+$("prev").onclick=function(){shift(-1)};$("next").onclick=function(){shift(1)};
+$("today").onclick=function(){cur=iso(new Date());render()};
+$("date").addEventListener("change",function(){if(this.value){cur=this.value;render()}});
+$("goal").addEventListener("change",function(){var g=num(this.value);if(g>=500){S.goal=g;save()}render()});
+
+chips();render();
+})();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>
